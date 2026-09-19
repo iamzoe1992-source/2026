@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>그린 홈 - 스마트 식물 가꾸기</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .terms-scroll::-webkit-scrollbar,
+        .preset-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terms-scroll::-webkit-scrollbar-thumb,
+        .preset-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Header Navigation -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-emerald-100 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-xl text-white font-bold shadow-md shadow-emerald-200">
+                    🌱
+                </div>
+                <div>
+                    <h1 class="font-black text-lg text-slate-800 tracking-tight leading-none">그린 홈</h1>
+                    <p class="text-[11px] text-emerald-600 font-bold mt-0.5">스마트 식물 가꾸기 커뮤니티</p>
+                </div>
+            </div>
+            <!-- Top Header Actions -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="openTermsDocModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                    <span>📜</span><span class="hidden sm:inline">이용약관 문서</span>
+                </button>
+                <button onclick="openSupportModal()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs">
+                    <span>💬</span><span class="hidden sm:inline">문제/건의 (AI)</span><span class="sm:hidden">문의</span>
+                </button>
+                <button onclick="handleAuthButtonClick()" id="headerAuthBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">
+                    회원가입 / 로그인
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Viewport -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Left Sidebar: Profile & Navigation -->
+        <aside class="md:col-span-1 space-y-5">
+            <!-- User Status Card with Profile Picture -->
+            <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-5 text-center relative overflow-hidden">
+                <div class="relative w-20 h-20 mx-auto mb-3 group">
+                    <div id="userProfileImageContainer" class="w-20 h-20 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl overflow-hidden border-2 border-emerald-500 shadow-sm">
+                        <span id="userProfileEmoji">🪴</span>
+                    </div>
+                    <button onclick="triggerProfilePhotoUpload()" class="absolute -bottom-1 -right-1 bg-slate-800 hover:bg-black text-white p-1.5 rounded-xl text-xs shadow-md transition" title="프로필 사진 변경">
+                        📷
+                    </button>
+                    <input type="file" id="sidebarProfileUploadInput" accept="image/*" onchange="handleProfilePhotoChange(event)" class="hidden">
+                </div>
+                <h2 class="font-bold text-base text-slate-800" id="userNameLabel">반가워요, 식물 집사님!</h2>
+                <p class="text-xs text-slate-400 mt-1" id="userSubLabel">체험 계정으로 이용 중입니다.</p>
+                
+                <button onclick="triggerProfilePhotoUpload()" class="mt-3 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 rounded-xl text-[11px] font-bold transition">
+                    🖼️ 내 프로필 사진 변경
+                </button>
+            </div>
+
+            <!-- Main Tab Navigation Buttons -->
+            <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-2 space-y-1">
+                <button onclick="switchTab('garden')" id="tabBtn-garden" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold flex items-center space-x-2 transition bg-emerald-600 text-white shadow-sm">
+                    <span>🌱</span><span>내 식물 가꾸기</span>
+                </button>
+                <button onclick="switchTab('game')" id="tabBtn-game" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium flex items-center space-x-2 transition text-slate-600 hover:bg-emerald-50">
+                    <span>🎮</span><span>미니 게임 센터</span>
+                </button>
+                <button onclick="switchTab('settings')" id="tabBtn-settings" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium flex items-center space-x-2 transition text-slate-600 hover:bg-emerald-50">
+                    <span>⚙️</span><span>설정 및 계정</span>
+                </button>
+            </div>
+
+            <!-- Gemini AI Info Badge -->
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-xs text-white space-y-2 shadow-md">
+                <div class="font-bold flex items-center gap-1 text-amber-200">
+                    <span>✨</span><span>Gemini AI 공식 기반 앱</span>
+                </div>
+                <p class="leading-relaxed text-[11px] text-emerald-50">
+                    실시간 맞춤 식물 케어 진단 및 소통 솔루션을 제공합니다.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Right Main Viewport Area -->
+        <section class="md:col-span-3 space-y-6">
+            <!-- Garden Tab Content -->
+            <div id="tabContent-garden" class="space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">나만의 식물 기록장</h2>
+                        <p class="text-xs text-slate-500 mt-1">직접 사진을 찍어 올리거나 완성도 높은 식물 일러스트로 나만의 식물을 등록하세요!</p>
+                    </div>
+                    <button onclick="openAddPlantModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5 active:scale-95">
+                        <span>➕</span><span>새 식물 등록하기</span>
+                    </button>
+                </div>
+
+                <!-- Plant Dynamic Container -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="plantListContainer">
+                    <!-- Dynamic Plant Cards render here -->
+                </div>
+
+                <!-- Community Feed Section -->
+                <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 space-y-4">
+                    <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <span>🌐</span><span>온라인 공유 식물 피드</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">로그인 후 내 식물을 피드에 공유하고 집사들과 조언 댓글 및 좋아요를 나눠보세요.</p>
+                        </div>
+                    </div>
+                    <!-- Shared Feed Container -->
+                    <div class="space-y-4" id="snsFeedContainer">
+                        <!-- Dynamic Shared Posts render here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Game Tab Content (Scratch & Entry Side-by-Side) -->
+            <div id="tabContent-game" class="hidden space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                                <span>🎮</span><span>그린 홈 미니게임 센터</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-1">
+                                스크래치(Scratch)와 엔트리(Entry) 미니게임을 한 곳에서 함께 플레이해보세요!
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-full self-start sm:self-auto flex items-center gap-1">
+                            <span>✨</span><span>2개의 게임 로딩 완료</span>
+                        </span>
+                    </div>
+
+                    <!-- Side-by-Side Responsive Grid for Scratch and Entry -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Left Game Card: Scratch Game -->
+                        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-3 flex flex-col justify-between shadow-xs hover:border-emerald-300 transition">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold bg-amber-100 text-amber-900 px-2.5 py-1 rounded-xl flex items-center gap-1">
+                                        <span>🐱</span><span>Scratch (스크래치) 게임</span>
+                                    </span>
+                                    <a href="https://scratch.mit.edu/projects/1374271182/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-emerald-600 hover:text-emerald-800 font-bold flex items-center gap-1">
+                                        <span>새창에서 열기</span><span>↗</span>
+                                    </a>
+                                </div>
+                                <div class="relative w-full aspect-[4/3] bg-slate-900 rounded-xl overflow-hidden border border-slate-300 shadow-inner">
+                                    <iframe src="https://scratch.mit.edu/projects/1374271182/embed" allowtransparency="true" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen class="w-full h-full"></iframe>
+                                </div>
+                            </div>
+                            <div class="pt-2 flex justify-between items-center text-xs border-t border-slate-200">
+                                <span class="text-slate-500 font-medium">프로젝트 ID: 1374271182</span>
+                                <a href="https://scratch.mit.edu/projects/1374271182/" target="_blank" rel="noopener noreferrer" class="bg-amber-500 hover:bg-amber-600 text-white px-3.5 py-1.5 rounded-xl font-bold transition shadow-xs">
+                                    🎮 스크래치 원본 플레이
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right Game Card: Entry Game -->
+                        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-3 flex flex-col justify-between shadow-xs hover:border-emerald-300 transition">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded-xl flex items-center gap-1">
+                                        <span>🤖</span><span>Entry (엔트리) 게임</span>
+                                    </span>
+                                    <a href="https://playentry.org/project/6a89189f700667c97781ec32" target="_blank" rel="noopener noreferrer" class="text-[11px] text-emerald-600 hover:text-emerald-800 font-bold flex items-center gap-1">
+                                        <span>새창에서 열기</span><span>↗</span>
+                                    </a>
+                                </div>
+                                <div class="relative w-full aspect-[4/3] bg-slate-900 rounded-xl overflow-hidden border border-slate-300 shadow-inner">
+                                    <iframe src="https://playentry.org/iframe/6a89189f700667c97781ec32" allowtransparency="true" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen class="w-full h-full"></iframe>
+                                </div>
+                            </div>
+                            <div class="pt-2 flex justify-between items-center text-xs border-t border-slate-200">
+                                <span class="text-slate-500 font-medium">엔트리 작품 ID: 6a89189f...</span>
+                                <a href="https://playentry.org/project/6a89189f700667c97781ec32" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl font-bold transition shadow-xs">
+                                    🚀 엔트리 원본 플레이
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab Content -->
+            <div id="tabContent-settings" class="hidden space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">계정 및 프로필 설정</h2>
+                        <p class="text-xs text-slate-500 mt-1">프로필 사진 등록, 계정 관리 및 데이터 삭제 메뉴입니다.</p>
+                    </div>
+                    <div class="border-t border-slate-100 pt-4 space-y-4">
+                        <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <div>
+                                <h3 class="font-bold text-xs text-slate-800" id="settingsUserInfo">로그인 정보: 미로그인 (체험 상태)</h3>
+                                <p class="text-[11px] text-slate-500 mt-0.5">프로필 사진 및 계정 정보를 설정해 보세요.</p>
+                            </div>
+                            <button onclick="handleAuthButtonClick()" id="settingsAuthBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">
+                                회원가입 / 로그인
+                            </button>
+                        </div>
+                        <!-- 3-Step Account Deletion -->
+                        <div class="border border-red-200 bg-red-50/40 p-4 rounded-xl space-y-2">
+                            <h3 class="font-bold text-xs text-red-700">위험 구역: 계정 영구 삭제</h3>
+                            <p class="text-[11px] text-slate-600">계정을 삭제하면 등록한 식물 기록과 작성했던 커뮤니티 글이 완전 삭제됩니다.</p>
+                            <div class="pt-2">
+                                <button onclick="startDeleteAccountFlow()" class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition">
+                                    계정 삭제하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Sign Up / Login Modal -->
+    <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-emerald-100 max-h-[92vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
+                    <span>🌱</span><span>그린 홈 회원가입 / 로그인</span>
+                </h3>
+                <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            
+            <div class="space-y-3 overflow-y-auto pr-1 flex-1 text-xs">
+                <!-- User Profile Photo Upload Field in Auth -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center gap-3">
+                    <div id="authProfilePreviewBox" class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl overflow-hidden border border-emerald-300 shrink-0">
+                        <span>🪴</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-800 mb-1">🖼️ 내 프로필 사진 등록</label>
+                        <input type="file" id="authProfilePicInput" accept="image/*" onchange="previewAuthProfilePic(event)" class="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-emerald-100 file:text-emerald-800 cursor-pointer">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">닉네임 <span class="text-red-500">*</span></label>
+                    <input type="text" id="authNickname" oninput="validateAuthForm()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="사용하실 닉네임을 입력하세요">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">비밀번호 <span class="text-red-500">*</span> <span class="text-slate-400 font-normal">(6자리 이상)</span></label>
+                    <input type="password" id="authPassword" oninput="validateAuthForm()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="비밀번호 6자리 이상 입력">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">생년월일 <span class="text-red-500">*</span> (만 10세 이상 가입 가능)</label>
+                    <input type="date" id="authBirthdate" onchange="validateAuthForm()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">성별 <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="selectGender('male')" id="genderMaleBtn" class="py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition text-center">
+                            👨 남자
+                        </button>
+                        <button type="button" onclick="selectGender('female')" id="genderFemaleBtn" class="py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition text-center">
+                            👩 여자
+                        </button>
+                    </div>
+                </div>
+                <!-- Dedicated Button for Opening Official 3-Page Terms Document File -->
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <label class="block text-xs font-bold text-slate-800">📜 이용약관 문서 확인 (필수)</label>
+                    <button type="button" onclick="openTermsDocModal()" class="w-full bg-slate-900 hover:bg-black text-white py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-between shadow">
+                        <span class="flex items-center gap-1.5">
+                            <span>📂</span>
+                            <span>[파일 열기] 그린 홈 서비스 이용약관 전문 (총 3페이지)</span>
+                        </span>
+                        <span id="authTermsStatusBadge" class="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">미확인</span>
+                    </button>
+                    <p class="text-[10px] text-slate-400">버튼을 눌러 3페이지 분량의 문서 파일 약관을 읽고 동의해 주셔야 가입이 진행됩니다.</p>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100 shrink-0">
+                <button onclick="closeAuthModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 transition">취소</button>
+                <button id="authSubmitBtn" onclick="processRegister()" disabled class="px-5 py-2 rounded-xl text-xs font-bold bg-slate-300 text-slate-500 cursor-not-allowed transition shadow">
+                    가입 / 로그인 완료
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official 3-Page Terms Document Modal Viewer -->
+    <div id="termsDocModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-slate-100 rounded-2xl shadow-2xl max-w-3xl w-full h-[90vh] flex flex-col border border-slate-300 overflow-hidden">
+            <!-- Document Reader Header -->
+            <div class="bg-slate-900 text-white px-5 py-3 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">📄</span>
+                    <div>
+                        <h3 class="font-bold text-sm">그린 홈(Green Home) 서비스 이용약관 및 커뮤니티 수칙_v2.0.pdf</h3>
+                        <p class="text-[10px] text-slate-400">총 3페이지 문서 파일 (공식 제정안)</p>
+                    </div>
+                </div>
+                <button onclick="closeTermsDocModal()" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <!-- Page Scrollable Area -->
+            <div id="termsDocContainer" onscroll="handleTermsDocScroll()" class="flex-1 overflow-y-auto terms-scroll p-4 sm:p-8 space-y-8 bg-slate-200">
+                <!-- Page 1 -->
+                <div class="document-page bg-white p-6 rounded-xl border border-slate-300 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                        <div class="text-xs font-extrabold text-emerald-800">🌱 GREEN HOME OFFICIAL DOCUMENT</div>
+                        <div class="text-xs font-bold text-slate-400">Page 1 / 3</div>
+                    </div>
+                    <h2 class="text-center font-black text-xl text-slate-900 my-4 tracking-tight">그린 홈 서비스 이용약관 및 제작자 정보</h2>
+                    <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+                        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                            <h4 class="font-bold text-emerald-900 text-xs mb-1">📌 [문서 개요 및 제작자/운영진 정보]</h4>
+                            <p><strong>• 플랫폼명:</strong> 그린 홈 - 스마트 식물 가꾸기 (Green Home)</p>
+                            <p><strong>• 개발 및 총괄 제작:</strong> 그린 홈 소프트웨어 융합 개발팀 (Green Home Studio)</p>
+                            <p><strong>• 핵심 기술:</strong> Google Gemini AI 기반 식물 생육 진단 및 소통 솔루션</p>
+                            <p><strong>• 문의 및 건의:</strong> 상단 메뉴 내 AI 종합 문의/건의 창구 지원</p>
+                        </div>
+                        <h3 class="font-bold text-sm text-slate-900 pt-2 border-b border-slate-100 pb-1">제1장 총칙</h3>
+                        <p><strong>제1조 (목적):</strong> 본 약관은 그린 홈 개발팀(이하 '제작자')이 제공하는 스마트 식물 가꾸기 서비스(이하 '서비스')의 이용 조건, 절차 및 회원의 권리·의무 및 책임 사항을 규정함을 목적으로 합니다.</p>
+                        
+                        <p><strong>제2조 (용어의 정의):</strong></p>
+                        <ul class="list-disc pl-5 space-y-1 text-slate-600">
+                            <li>'식물 집사(회원)': 본 서비스에 회원등록을 마치고 로그인하여 온라인 공유 기능을 이용하는 자를 말합니다.</li>
+                            <li>'비로그인 사용자': 회원가입 없이 개인 식물 가꾸기 기록만 체험 및 보관하는 자를 의미하며, 온라인 공유 기능은 제한됩니다.</li>
+                            <li>'공유 피드(SNS)': 로그인한 회원이 자신의 반려식물 성장 기록 및 사진을 타인과 공유하고 소통하는 온라인 커뮤니티 공간을 의미합니다.</li>
+                        </ul>
+                        <p><strong>제3조 (약관의 효력 및 변경):</strong> 본 약관은 회원이 서비스 가입 시 3페이지 분량의 문서 전문을 확인하고 동의함으로 효력이 발생합니다.</p>
+                    </div>
+                </div>
+                <!-- Page 2 -->
+                <div class="document-page bg-white p-6 rounded-xl border border-slate-300 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                        <div class="text-xs font-extrabold text-emerald-800">🌱 GREEN HOME OFFICIAL DOCUMENT</div>
+                        <div class="text-xs font-bold text-slate-400">Page 2 / 3</div>
+                    </div>
+                    <h3 class="font-bold text-sm text-slate-900 border-b border-slate-100 pb-1">제2장 식물 케어 및 서비스 이용 의무</h3>
+                    <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+                        <p><strong>제4조 (반려식물 케어 및 집사의 의무):</strong></p>
+                        <ol class="list-decimal pl-5 space-y-1 text-slate-600">
+                            <li>모든 회원은 등록한 반려식물에게 적절한 수분 공급과 일조량, 통풍을 제공하도록 최선의 노력을 다해야 합니다.</li>
+                            <li>과습(물 과다 공급)으로 인한 뿌리 무름을 방지하기 위하여, 물을 주기 전 반드시 손가락으로 겉흙의 건조 상태를 확인해야 합니다.</li>
+                            <li>식물을 오랜 기간 방치하여 고사하게 만드는 행위를 지양하며, 이상 증상 발생 시 Gemini AI 진단 기능을 활용하여 조치를 취합니다.</li>
+                        </ol>
+                        <p><strong>제5조 (Gemini AI 진단 서비스 이용 및 한계):</strong></p>
+                        <p>제작자가 제공하는 Gemini AI 분석 소견은 인공지능 기반의 참고용 안내문입니다. 실제 식물의 희귀 질병이나 병충해 피해의 경우 전문가나 화원 자문을 병행하여 참고하시기 바랍니다.</p>
+                        <p><strong>제6조 (비로그인 계정 기능 제한):</strong> 비로그인 사용자는 개인 기록 작성만 가능하며 온라인 피드 공유 기능이 제공되지 않습니다.</p>
+                    </div>
+                </div>
+                <!-- Page 3 -->
+                <div class="document-page bg-white p-6 rounded-xl border border-slate-300 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                        <div class="text-xs font-extrabold text-emerald-800">🌱 GREEN HOME OFFICIAL DOCUMENT</div>
+                        <div class="text-xs font-bold text-slate-400">Page 3 / 3</div>
+                    </div>
+                    <h3 class="font-bold text-sm text-slate-900 border-b border-slate-100 pb-1">제3장 SNS 커뮤니티 사용 시 필수 주의사항 및 금지행위</h3>
+                    <div class="space-y-3 text-xs leading-relaxed text-slate-700">
+                        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                            <h4 class="font-bold text-amber-900 text-xs mb-1">⚠️ [SNS 커뮤니티 사용 시 핵심 주의점]</h4>
+                            <p class="leading-relaxed">그린 홈의 공유 피드는 식물 집사들 간의 건전하고 따뜻한 소통 공간입니다. 타인을 비방하거나 위험한 정보 유포 시 즉시 게시물 삭제 및 계정 이용이 제한될 수 있습니다.</p>
+                        </div>
+                        <p><strong>제7조 (SNS 커뮤니티 금지행위):</strong> 회원은 공유 피드 게시글 작성 및 댓글 작성 시 다음 각 호의 행위를 엄격히 금지합니다.</p>
+                        
+                        <ul class="list-disc pl-5 space-y-1.5 text-slate-600">
+                            <li><strong>타인의 사진 도용 금지:</strong> 무단 수집한 타인의 식물 사진이나 다른 집사의 게시물 저작권을 침해하여 본인 식물인 것처럼 속여 게시하는 행위</li>
+                            <li><strong>악성 댓글 및 비방 금지:</strong> 상대방 초보 집사의 식물 관리 능력을 비하하거나, 불쾌감을 주는 언행을 남기는 행위</li>
+                            <li><strong>검증되지 않은 위험한 식물 케어 정보 유포:</strong> 해로운 화학물질 사용 등 식물을 고사시킬 위험이 있거나 독성 식물에 대한 잘못된 정보를 게시하는 행위</li>
+                            <li><strong>상업적 광고 및 스팸 게시:</strong> 홍보성 링크 반복 도배 및 영리 목적의 상업적 광고 게시</li>
+                        </ul>
+                        <p><strong>제8조 (위반 시 제재 조치):</strong> 제7조의 금지행위를 위반한 게시물은 신고 접수 또는 모니터링을 통해 사전 통보 없이 즉시 삭제 조치됩니다.</p>
+                        <div class="pt-4 border-t border-slate-200 text-center text-slate-500 font-bold">
+                            --- 🌿 이용약관 및 SNS 이용 수칙 문서 끝 (Page 3/3) 🌿 ---
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Document Footer Action Bar -->
+            <div class="bg-white px-5 py-3 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
+                <div class="text-xs text-slate-600 font-medium flex items-center gap-2">
+                    <span id="docScrollIndicator" class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full text-[11px] font-bold">
+                        📜 문서 3페이지 맨 아래까지 스크롤 하세요
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="closeTermsDocModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+                        닫기
+                    </button>
+                    <button id="agreeTermsDocBtn" onclick="acceptTermsDoc()" disabled class="px-5 py-2 bg-slate-300 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed transition shadow">
+                        약관 전문 동의 완료
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Plant Modal -->
+    <div id="addPlantModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-emerald-100 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
+                <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+                    <span>🌱</span><span>새 식물 등록하기</span>
+                </h3>
+                <button onclick="closeAddPlantModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <div class="space-y-4 overflow-y-auto pr-1 flex-1 text-xs">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">식물 애칭 <span class="text-red-500">*</span></label>
+                    <input type="text" id="newPlantName" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="예: 초록이, 반려 몬스테라">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">식물 품종/종류</label>
+                    <input type="text" id="newPlantSpecies" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="예: 몬스테라, 선인장, 스투키, 장미">
+                </div>
+                <!-- Plant Image Mode Choice -->
+                <div class="space-y-2 border-t border-slate-100 pt-3">
+                    <label class="block text-xs font-extrabold text-slate-800">
+                        🎨 식물 이미지 선택
+                    </label>
+                    <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+                        <button type="button" onclick="setPlantImageMode('preset')" id="imgModePresetBtn" class="py-1.5 text-xs font-bold rounded-lg transition bg-white text-emerald-700 shadow-2xs">
+                            🌿 식물 일러스트 프리셋
+                        </button>
+                        <button type="button" onclick="setPlantImageMode('upload')" id="imgModeUploadBtn" class="py-1.5 text-xs font-bold rounded-lg transition text-slate-600 hover:bg-white/50">
+                            📷 내 식물 사진 직접 업로드
+                        </button>
+                    </div>
+                    <!-- Preset Plant Types -->
+                    <div id="presetChara
